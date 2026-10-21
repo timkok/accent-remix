@@ -21,3 +21,16 @@ The child starts with English word remixes, advances through sound-direction clu
 - Acoustic output cannot be verified by the unit tests. Check installed voices with a fluent Mandarin speaker.
 - iPhone/iPad touch and recording compatibility needs hardware testing. Pointer events and MIME-type selection are implemented, but are not a guarantee for every device/browser version.
 - Internal cloud-browser preview was blocked when it attempted to inspect an error page. No workaround was used. Live production-browser checks are recorded below if completed.
+
+## Live production checks (2026-10-21)
+
+- GitHub Pages build, 22 tests, artifact upload and deploy jobs succeeded.
+- Public URL opened in the connected desktop Chrome browser: https://timkok.github.io/accent-remix/
+- Home rendered with English-first start button and animated host; no Mandarin lesson on the home screen.
+- At 390 × 844 viewport, first-mission content, pitch guides, modes, host prompt and recording controls rendered without visible horizontal overflow. This is a responsive viewport check, not physical iPhone hardware verification.
+- Completed three remix words, earned Voice Explorer and advanced to Voice Detective.
+- Triggered pitch playback; no browser console warning/error was logged during the checked flow. Acoustic accuracy remains unverified.
+- An incorrect detective answer showed a gentle cue; a correct retry advanced without duplicate first-attempt credit.
+- Parent Base displayed one completed level and 150 points after reloading, confirming persistent progress in the live browser.
+- Parent Base detected a local Mandarin voice and reported completed offline asset caching. Actual disconnected-device playback remains unverified.
+- Mobile inspection found a missing accessible name on the icon-only parent button; added aria-label="Parent Base" and reran build/tests successfully.

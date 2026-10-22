@@ -1,0 +1,166 @@
+{
+  "title": "Mandarin Sounds",
+  "credit": "Chinese-Lessons.com and its volunteer voice contributors",
+  "source": "https://chinese-lessons.com/download.htm",
+  "acknowledgements": "https://chinese-lessons.com/about/acknowledgements.htm",
+  "license": "CC BY-NC-ND 3.0 US",
+  "licenseUrl": "https://creativecommons.org/licenses/by-nc-nd/3.0/us/",
+  "archive": "https://chinese-lessons.com/sounds/Mandarin_sounds.zip",
+  "archiveSha256": "be17ce405fcfd6c63a940fa9ac2a7985aa3e6e464543d72f36f2b9dc6ee8b8cd",
+  "changes": "None. The selected original MP3 files are redistributed byte-for-byte. Slow listening changes playback speed only; no modified recordings are distributed.",
+  "notes": "Noncommercial educational use only. Individual speaker names are not supplied by the source. li1 and la2 are less common readings; pa3 and na1 have no bundled recording.",
+  "clips": {
+    "ma1": {
+      "file": "audio/mandarin/ma1.mp3",
+      "sha256": "9412709ca736b93200403a2bb9d600c048dc954a10d8fce488421b50260ea32b"
+    },
+    "ma2": {
+      "file": "audio/mandarin/ma2.mp3",
+      "sha256": "82b19559774b1de9e0ddb311a3675deaee08eb6a533f62640c0b6b69025751ca"
+    },
+    "ma3": {
+      "file": "audio/mandarin/ma3.mp3",
+      "sha256": "573845e93ded57e633f9c74145c3b194b9703f2ba6b773dac1c5ca4df13a617a"
+    },
+    "ma4": {
+      "file": "audio/mandarin/ma4.mp3",
+      "sha256": "bfbf65ee0ffd7f601d3a6c98b3bf47b3af3c4a47a137c0442cbb83ce30654822"
+    },
+    "mi1": {
+      "file": "audio/mandarin/mi1.mp3",
+      "sha256": "f21f924beafe774204c58922ac7b827f272fa496701179bad3d2f1a4a314ba90"
+    },
+    "mi2": {
+      "file": "audio/mandarin/mi2.mp3",
+      "sha256": "2b3ea89f674b2a18c91b1b8813b7a06c01b02d947a3e5319f67ebf58cca11942"
+    },
+    "mi3": {
+      "file": "audio/mandarin/mi3.mp3",
+      "sha256": "b82c880b6f261de4151b61ad2f28a15090315cad1d3c2144ffd0cac0feaef79b"
+    },
+    "mi4": {
+      "file": "audio/mandarin/mi4.mp3",
+      "sha256": "b2271b04d82afff79373b678373288aa662c2dd686f4ef93f46fe5e8dcceb4e6"
+    },
+    "li1": {
+      "file": "audio/mandarin/li1.mp3",
+      "sha256": "9720c3007f74d7007833a29646eada7882737301a489b5a8e27c4ea5714c4e23"
+    },
+    "li2": {
+      "file": "audio/mandarin/li2.mp3",
+      "sha256": "04ed967832dd110b03787f78c22f87b06480c2e5cbc26f11c27f58d75fd42220"
+    },
+    "li3": {
+      "file": "audio/mandarin/li3.mp3",
+      "sha256": "22c5ca7becbb5b977eff8d18d0d46411b23ac47e93ffd3540c7b7f700661a3e6"
+    },
+    "li4": {
+      "file": "audio/mandarin/li4.mp3",
+      "sha256": "6d6e114eadb05c89f73ad9fdc63a81d597545ceb54740331232cb02ca19a5d0a"
+    },
+    "lu1": {
+      "file": "audio/mandarin/lu1.mp3",
+      "sha256": "f28099de564502ebbcdc26f119f10e001f0e4690181f7588e897f787bd9ae32e"
+    },
+    "lu2": {
+      "file": "audio/mandarin/lu2.mp3",
+      "sha256": "931710817cb9f8b8b031aff15aec917af5e969a7fd994b76d09275200650a076"
+    },
+    "lu3": {
+      "file": "audio/mandarin/lu3.mp3",
+      "sha256": "7f964d552b87868553c904caaa0f88fd972d770a1d9a987848f717d7a0fd0e33"
+    },
+    "lu4": {
+      "file": "audio/mandarin/lu4.mp3",
+      "sha256": "db1329dd4114e853e86b979d908b7ae7ef8ad83fa5aa1721565dbe9cb78d24af"
+    },
+    "la1": {
+      "file": "audio/mandarin/la1.mp3",
+      "sha256": "a41fd4f2636b6f6f23f43ba72551ba4059c9dbca303c2bea59e05fc84f9db682"
+    },
+    "la2": {
+      "file": "audio/mandarin/la2.mp3",
+      "sha256": "076a1598f9f66a8f3372085353dd14c909ab81da3d639c1965e62815fbffa6bb"
+    },
+    "la3": {
+      "file": "audio/mandarin/la3.mp3",
+      "sha256": "00fb689a25be93acc1375b65696cbc65ffe2f3293cc67513c3c50caed35d1e2f"
+    },
+    "la4": {
+      "file": "audio/mandarin/la4.mp3",
+      "sha256": "b04a5e436eb759ed94319f3c0185ffe793d70a9885a6703702b960807fc8cc95"
+    },
+    "ba1": {
+      "file": "audio/mandarin/ba1.mp3",
+      "sha256": "790eda685bd5df01304e47fbc695a51ba787f9dbf0dd0d7a1099fe945bd25304"
+    },
+    "ba2": {
+      "file": "audio/mandarin/ba2.mp3",
+      "sha256": "ffc5babaef0b4d39508d5d14f6b1572f708c84110ba06e4505a20788f3551915"
+    },
+    "ba3": {
+      "file": "audio/mandarin/ba3.mp3",
+      "sha256": "3c3865329e797860272649d3becc83bf775ca2b9fcebec465b188be87ba774b9"
+    },
+    "ba4": {
+      "file": "audio/mandarin/ba4.mp3",
+      "sha256": "30ec219a88d9fd07f10fdd3e91169d66d144250b0f5b3fb4ff8604a7b51518cf"
+    },
+    "pa1": {
+      "file": "audio/mandarin/pa1.mp3",
+      "sha256": "c17cfeef97f1c119285d2cbd071dda4052dac017a8b7521a60888e63de16cd45"
+    },
+    "pa2": {
+      "file": "audio/mandarin/pa2.mp3",
+      "sha256": "5d0a1839c6aea26c29456be118974ba9ef707de430909322a344e306ae5e45c8"
+    },
+    "pa4": {
+      "file": "audio/mandarin/pa4.mp3",
+      "sha256": "d10a6254a623628c29022a54d56ee74b5f91c12b4f4e77e07ea63617ed8e9275"
+    },
+    "da1": {
+      "file": "audio/mandarin/da1.mp3",
+      "sha256": "7dc6d5330c0b0ba5bc4aa95e95cc9967e5308a16193e70691356ad09c430d0cc"
+    },
+    "da2": {
+      "file": "audio/mandarin/da2.mp3",
+      "sha256": "40130f86cbd048158a9cf4cc1deedc0c2b21d5a45f02632421e61145f9ee9416"
+    },
+    "da3": {
+      "file": "audio/mandarin/da3.mp3",
+      "sha256": "657eeb2d0952fc1ac79f9c82015840d9e4cc0e6a95f1a3d80d2acb664eb9246c"
+    },
+    "da4": {
+      "file": "audio/mandarin/da4.mp3",
+      "sha256": "6d381d8b2e158bbce1d051d597cd7e2bccdfab87801a3d1a9b9fffa1fae57bbc"
+    },
+    "na2": {
+      "file": "audio/mandarin/na2.mp3",
+      "sha256": "25b9a22966485add2443d6cec7027c4c97c76cc03944336032e76ab105ca727d"
+    },
+    "na3": {
+      "file": "audio/mandarin/na3.mp3",
+      "sha256": "2b60e6c11429e4a0cd95583a6d72417e0975159cbbf7c7b3cf5ffbdea30d4a1c"
+    },
+    "na4": {
+      "file": "audio/mandarin/na4.mp3",
+      "sha256": "296fd22771ecd024897a30081e3868e9930a2c45d175ebae8fc04a8e77c8d42f"
+    },
+    "tu1": {
+      "file": "audio/mandarin/tu1.mp3",
+      "sha256": "0049e088fe3230858b954e54b0dbb746618edff6c2c9c53cf2425682c04c47ff"
+    },
+    "tu2": {
+      "file": "audio/mandarin/tu2.mp3",
+      "sha256": "7f6d1e136c43256c4db34e251e452f81d8ac12c41caf1777c19683c70f23c095"
+    },
+    "tu3": {
+      "file": "audio/mandarin/tu3.mp3",
+      "sha256": "a82a79bc27778a2e5660a0dccb602eb5ebfa044a3dfcdbb0b6ebefa4718e9be6"
+    },
+    "tu4": {
+      "file": "audio/mandarin/tu4.mp3",
+      "sha256": "2935c2e3577b4d884c418df6add4c6923fc17af485178787896a92b245acea2b"
+    }
+  }
+}

@@ -4,7 +4,7 @@
 
 Started from latest `main`, `427bc3f90dfc442cbebd19d6656f0752608497f6`, fetched on 2026-10-22. V2.1 is already published: [PR #1](https://github.com/timkok/accent-remix/pull/1), [successful Pages run](https://github.com/timkok/accent-remix/actions/runs/39840829710), [live game](https://timkok.github.io/accent-remix/).
 
-V2.2 release branch: `feature/v22-mobile-reliability`. The [pull request list](https://github.com/timkok/accent-remix/pulls?q=is%3Apr+V2.2) and [Pages workflow runs](https://github.com/timkok/accent-remix/actions/workflows/deploy.yml) record the authoritative merge commit, checks and deployment status. Publication uses the existing GitHub Pages workflow after normal PR review and checks. No force-push or branch-protection bypass is used.
+V2.2 was merged in [PR #2](https://github.com/timkok/accent-remix/pull/2) as `ed965b024e2744c16461f786536fb8ed2c359694`; [Pages build and deployment](https://github.com/timkok/accent-remix/actions/runs/39850801520) succeeded. Release branch: `feature/v22-mobile-reliability`. The [pull request list](https://github.com/timkok/accent-remix/pulls?q=is%3Apr+V2.2) and [Pages workflow runs](https://github.com/timkok/accent-remix/actions/workflows/deploy.yml) record the authoritative merge commit, checks and deployment status. Publication uses the existing GitHub Pages workflow after normal PR review and checks. No force-push or branch-protection bypass is used.
 
 Historical preparation checkpoint: the connector initially lacked write permission and the local browser timed out. Authenticated browser access was restored on 2026-10-22; these were preparation issues, not a current statement that V2.1 was unpublished.
 
@@ -29,6 +29,10 @@ Historical preparation checkpoint: the connector initially lacked write permissi
 - **Not verified:** rendered desktop/mobile V2.2 layout, real audio playback quality, actual offline restart/update in a browser, iPhone Safari and iPad Safari microphone permission/MP4/interruptions, physical touch and screen-reader behavior. Automated mocks do not replace those checks.
 
 - The first PR build compiled successfully but an upstream audio connection reset interrupted packaging. Build downloads now retry transient network errors at most five times with bounded backoff; permanent HTTP failures and checksum mismatches still fail. Download recovery/exhaustion/permanent-error behavior is covered by an additional regression test. The full build and 84-test suite were rerun successfully after this change.
+
+## Browser-discovered update correction
+
+After the first V2.2 deployment, cloud Chrome retained a named V2.1 word train across the explicit update, but loaded old `index-DPJ0oQ7J.js` from the new cache. Installation had reused an HTTP-cached index page. The follow-up `fix/v22-consistent-update` change requests all precached files with `cache: reload` and pins the index response to the build SHA-256 integrity value. A stale index now rejects installation instead of activating a mixed release. Offline tests verify fresh request mode and the exact production index hash. The production build and full 84-test suite passed again after this correction. Physical iOS and offline restart remain unverified.
 
 ## Release verification
 

@@ -6,7 +6,7 @@ import App from '../src/App';
 import {Recorder,ToneSlide} from '../src/components';
 import {STORAGE_KEY,freshProgress,contour} from '../src/engine';
 beforeEach(()=>{localStorage.clear();window.scrollTo=vi.fn();Object.defineProperty(window,'speechSynthesis',{configurable:true,value:{getVoices:()=>[],cancel:vi.fn(),addEventListener:vi.fn(),removeEventListener:vi.fn()}});});
-afterEach(()=>{cleanup();vi.restoreAllMocks();});
+afterEach(()=>{cleanup();vi.restoreAllMocks();vi.unstubAllGlobals();});
 describe('playable journey',()=>{
  it('starts with English, completes remix, unlocks detective and saves progress',()=>{render(<App/>);expect(screen.queryByText('mā')).toBeNull();fireEvent.click(screen.getByRole('button',{name:/Start the challenge/}));expect(screen.getByRole('heading',{name:'Give your words a twist.'})).toBeTruthy();for(let i=0;i<3;i++){for(let j=0;j<3;j++)fireEvent.click(screen.getByRole('button',{name:/I did it!/}));fireEvent.click(screen.getByRole('button',{name:i<2?/Another word!/:/Finish my remix/}));}expect(screen.getByRole('heading',{name:'Voice Explorer'})).toBeTruthy();expect(JSON.parse(localStorage.getItem(STORAGE_KEY)!).completed).toContain(0);fireEvent.click(screen.getByRole('button',{name:'Next mission'}));expect(screen.getByRole('heading',{name:'Follow the sound trail.'})).toBeTruthy();});
  it('counts only the first detective attempt',()=>{const p=freshProgress();p.completed=[0];localStorage.setItem(STORAGE_KEY,JSON.stringify(p));render(<App/>);fireEvent.click(screen.getByRole('button',{name:/Continue your adventure/}));fireEvent.click(screen.getByRole('button',{name:/MISSION 02/}));fireEvent.click(screen.getByRole('button',{name:'→ Level'}));fireEvent.click(screen.getByRole('button',{name:'↗ Rising'}));expect(JSON.parse(localStorage.getItem(STORAGE_KEY)!).attempts[2]).toEqual({right:0,total:1});expect(JSON.parse(localStorage.getItem(STORAGE_KEY)!).points).toBe(0);});
@@ -16,4 +16,32 @@ describe('playable journey',()=>{
 describe('microphone privacy and errors',()=>{
  it('asks only after a click and handles permission denial',async()=>{const getUserMedia=vi.fn().mockRejectedValue(new DOMException('Denied','NotAllowedError'));Object.defineProperty(navigator,'mediaDevices',{configurable:true,value:{getUserMedia}});vi.stubGlobal('MediaRecorder',class {});render(<Recorder enabled sound/>);expect(getUserMedia).not.toHaveBeenCalled();fireEvent.click(screen.getByRole('button',{name:'Start recording'}));await waitFor(()=>expect(screen.getByRole('status').textContent).toContain('permission was not granted'));expect(getUserMedia).toHaveBeenCalledTimes(1);});
  it('disables recording when parent has disabled it',()=>{render(<Recorder enabled={false} sound/>);expect((screen.getByRole('button',{name:'Start recording'}) as HTMLButtonElement).disabled).toBe(true);});
+});
+
+describe('Echo voice guidance',()=>{
+ it('speaks after starting and advancing, replays, and respects mute',()=>{
+  const speak=vi.fn();const cancel=vi.fn();
+  Object.defineProperty(window,'speechSynthesis',{configurable:true,value:{getVoices:()=>[{localService:true,lang:'en-US'}],speak,cancel,addEventListener:vi.fn(),removeEventListener:vi.fn()}});
+  vi.stubGlobal('SpeechSynthesisUtterance',class {constructor(public text:string){}});
+  render(<App/>);expect(speak).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole('button',{name:/Start the challenge/}));
+  expect(speak.mock.lastCall![0].text).toContain('Say the word normally');
+  expect(speak.mock.invocationCallOrder.at(-1)).toBeGreaterThan(cancel.mock.invocationCallOrder.at(-1)!);
+  fireEvent.click(screen.getByRole('button',{name:'I did it!'}));
+  expect(speak.mock.lastCall![0].text).toBe('Make the first sound go UP!');
+  fireEvent.click(screen.getByRole('button',{name:'Hear Echo again'}));
+  expect(speak.mock.lastCall![0].text).toBe('Make the first sound go UP!');
+  fireEvent.click(screen.getByRole('button',{name:'Hear the everyday word'}));
+  expect(speak.mock.lastCall![0].text).toBe('limit');
+  fireEvent.click(screen.getByRole('button',{name:'Turn sound off'}));
+  const count=speak.mock.calls.length;
+  fireEvent.click(screen.getByRole('button',{name:'I did it!'}));
+  expect(speak).toHaveBeenCalledTimes(count);
+  expect((screen.getByRole('button',{name:'Hear Echo again'}) as HTMLButtonElement).disabled).toBe(true);
+ });
+ it('explains missing local speech instead of using an online voice',()=>{
+  const speak=vi.fn();Object.defineProperty(window,'speechSynthesis',{configurable:true,value:{getVoices:()=>[{localService:false,lang:'en-US'}],speak,cancel:vi.fn(),addEventListener:vi.fn(),removeEventListener:vi.fn()}});
+  render(<App/>);fireEvent.click(screen.getByRole('button',{name:/Start the challenge/}));
+  expect(screen.getByText(/No local English voice is ready/)).toBeTruthy();expect(speak).not.toHaveBeenCalled();
+ });
 });

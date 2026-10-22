@@ -6,12 +6,15 @@ async function walk(dir){let all=[];for(const f of await readdir(dir,{withFileTy
 const audio=JSON.parse(await readFile('public/mandarin-audio.json','utf8'));
 execFileSync('python3',['-c',`
 import hashlib,io,json,pathlib,tempfile,urllib.request,zipfile
+import sys
+sys.path.insert(0,'scripts')
+from audio_download import download
 m=json.loads(pathlib.Path('public/mandarin-audio.json').read_text())
 cache=pathlib.Path(tempfile.gettempdir())/'accent-remix-audio';cache.mkdir(exist_ok=True)
 archive=cache/(m['archiveSha256']+'.zip')
 if not archive.exists():
     req=urllib.request.Request(m['archive'],headers={'User-Agent':'AccentRemix-EducationalAudio/1.0'})
-    with urllib.request.urlopen(req,timeout=90) as response:data=response.read()
+    data=download(req,timeout=90)
     assert hashlib.sha256(data).hexdigest()==m['archiveSha256'],'Audio archive checksum changed'
     archive.write_bytes(data)
 data=archive.read_bytes()
@@ -26,18 +29,21 @@ console.log('Bundled original Mandarin recordings:',Object.keys(audio.clips).len
 // Whole-word recordings retain natural light syllables and within-word tone changes.
 execFileSync('python3',['-c',`
 import concurrent.futures,hashlib,json,pathlib,tempfile,urllib.request
+import sys
+sys.path.insert(0,'scripts')
+from audio_download import download
 m=json.loads(pathlib.Path('public/word-audio.json').read_text())
 cache=pathlib.Path(tempfile.gettempdir())/'accent-remix-words';cache.mkdir(exist_ok=True)
 def bundle(w):
     saved=cache/(w['sha256']+'.mp3')
     if saved.exists():data=saved.read_bytes()
     else:
-        with urllib.request.urlopen(w['source'],timeout=60) as response:data=response.read()
+        data=download(w['source'])
         assert hashlib.sha256(data).hexdigest()==w['sha256'],w['id']+' checksum mismatch'
         saved.write_bytes(data)
     assert hashlib.sha256(data).hexdigest()==w['sha256'],w['id']+' checksum mismatch'
     out=pathlib.Path('dist')/w['file'];out.parent.mkdir(parents=True,exist_ok=True);out.write_bytes(data)
-with concurrent.futures.ThreadPoolExecutor(max_workers=6) as pool:list(pool.map(bundle,m['words']))
+with concurrent.futures.ThreadPoolExecutor(max_workers=3) as pool:list(pool.map(bundle,m['words']))
 print('Bundled whole-word recordings:',len(m['words']))
 `],{stdio:'inherit'});
 

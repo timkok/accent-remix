@@ -10,7 +10,7 @@ const vocabulary=collection.words;
 const groups=['All',...new Set(vocabulary.map(w=>w.group))];
 const find=(id:string)=>vocabulary.find(w=>w.id===id)!;
 const ids=(names:string[])=>names.map(name=>vocabulary.find(w=>w.hanzi===name)!.id);
-const presets=[{name:'Snack time',words:ids(['苹果','香蕉','西瓜'])},{name:'Sports day',words:ids(['游泳','足球','跑步'])},{name:'Family hello',words:ids(['妈妈','爸爸','谢谢'])}];
+const presets=[{name:'Snack time',words:ids(['苹果','香蕉','西瓜'])},{name:'Animal friends',words:ids(['兔子','熊猫','老虎'])},{name:'Sports day',words:ids(['游泳','足球','跑步'])},{name:'Family hello',words:ids(['妈妈','爸爸','谢谢'])}];
 export function WordTrain({sound,microphone,learning,onLearningChange,onChallenge}:{sound:boolean;microphone:boolean;learning:Learning;onLearningChange:Dispatch<SetStateAction<Learning>>;onChallenge:(ids:string[],orderOnly?:boolean)=>void}){
  const [group,setGroup]=useState('All'),[query,setQuery]=useState(''),[selected,setSelected]=useState(ids(['苹果'])[0]);
  const train=learning.draft;const [title,setTitle]=useState('My word train'),[saveNote,setSaveNote]=useState(''),[deleting,setDeleting]=useState(''),[renaming,setRenaming]=useState(''),[newName,setNewName]=useState('');const [slow,setSlow]=useState(false),[echo,setEcho]=useState(false),[repeat,setRepeat]=useState(1);
@@ -21,7 +21,7 @@ export function WordTrain({sound,microphone,learning,onLearningChange,onChalleng
  function play(list:string[],inTrain=false,forceSlow=slow){
   if(!sound)return;
   const sequence=inTrain?Array.from({length:repeat},()=>list).flat():list;
-  playAudioSequence(sequence.map(id=>find(id).file),{slow:forceSlow,gapMs:echo?2200:120,onStep:index=>{setPlaying(sequence[index]);setPosition(inTrain?index%list.length:null);setMessage(`Playing ${find(sequence[index]).hanzi} · ${index+1} of ${sequence.length}`);},onFinish:reason=>{setPlaying(null);setPosition(null);setMessage(reason==='complete'?'Your turn! Copy what you heard.':reason==='error'?'Could not play. Please try again.':'Playback stopped.');}});
+  playAudioSequence(sequence.map(id=>find(id).file),{slow:forceSlow,gapMs:echo?2200:120,onStep:index=>{setPlaying(sequence[index]);setPosition(inTrain?index%list.length:null);setMessage(`Playing ${find(sequence[index]).hanzi} · ${inTrain?`word ${index%list.length+1} of ${list.length} · round ${Math.floor(index/list.length)+1} of ${repeat}`:`${index+1} of ${sequence.length}`}`);},onFinish:reason=>{setPlaying(null);setPosition(null);setMessage(reason==='complete'?'Your turn! Copy what you heard.':reason==='error'?'Could not play. Please try again.':'Playback stopped.');}});
  }
  function choose(id:string){stopAudio();setSelected(id);play([id]);}
  function changeTrain(next:string[]){stopAudio();onLearningChange(p=>({...p,draft:next.slice(0,6)}));setMessage(next.length?'Train ready. Press Play my train.':'Add a word to start your train.');}
@@ -40,7 +40,7 @@ export function WordTrain({sound,microphone,learning,onLearningChange,onChalleng
    {train.map((id,index)=><div className={`train-car ${position===index?'is-playing':''}`} key={`${index}-${id}`} aria-current={position===index?'step':undefined}><span>{find(id).emoji}</span><div className="word-label"><strong>{find(id).hanzi}</strong><small>{find(id).pinyin}</small></div><div className="train-tools"><button className="icon-btn" disabled={index===0} aria-label={`Move word ${index+1} left`} onClick={()=>move(index,-1)}><ArrowLeft size={15}/></button><button className="icon-btn" disabled={index===train.length-1} aria-label={`Move word ${index+1} right`} onClick={()=>move(index,1)}><ArrowRight size={15}/></button><button className="icon-btn" aria-label={`Remove word ${index+1}`} onClick={()=>changeTrain(train.filter((_,i)=>i!==index))}><Trash2 size={14}/></button></div></div>)}
    <div className="word-settings"><label><input type="checkbox" checked={slow} onChange={e=>{stopAudio();setSlow(e.target.checked);}}/>Slow train</label><label><input type="checkbox" checked={echo} onChange={e=>{stopAudio();setEcho(e.target.checked);}}/>Pause for my turn</label><label>Repeat<select value={repeat} onChange={e=>{stopAudio();setRepeat(Number(e.target.value));}}><option value={1}>1 time</option><option value={2}>2 times</option><option value={3}>3 times</option></select></label></div>
    <div className="button-row"><button className="btn primary" disabled={!sound||!train.length} onClick={()=>play(train,true)}><Play size={17}/>Play my train</button><button className="btn secondary" disabled={!playing} onClick={stopAudio}><Square size={16}/>Stop playback</button><button className="text-btn" disabled={!train.length} onClick={()=>changeTrain([])}>Clear train</button></div>
-   <p className="microcopy">A listening list of complete words. Your train does not have to be a sentence.</p>
+   <p className="microcopy">Independent words played one after another — not a naturally spoken sentence.</p>
    <p role="status" className="feedback" style={{minHeight:24}}>{!sound?'Sound is off. Turn it on at the top.':message}</p>
    <div className="button-row">{presets.map(p=><button key={p.name} className="text-btn" onClick={()=>changeTrain(p.words)}>{p.name} ↗</button>)}</div>
    <div className="saved-trains">

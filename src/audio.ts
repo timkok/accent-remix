@@ -26,18 +26,53 @@ export async function pitchSound(tone:Tone,slow=false,fun=false,onComplete?:()=>
 export async function playMandarin(base:string,tone:Tone,slow=false):Promise<string>{stopAudio();const id=base+tone,entry=audioManifest[id];if(entry){const player=new Audio(import.meta.env.BASE_URL+entry.file);active=player;player.playbackRate=slow?.78:1;player.preservesPitch=true;const token=generation;player.onerror=()=>{if(token===generation)window.dispatchEvent(new CustomEvent('audio-error',{detail:'The recording could not load. Reconnect once to cache it, then try again.'}));};try{await player.play();return token===generation?'Human Mandarin recording • Chinese-Lessons.com'+(slow?' • slow playback':''):'';}catch{return token===generation?'The recording could not play. Tap again, or reconnect once to download it.':'';}}const cue=speechCues[id];if(!cue)return 'Sound-shape practice only: no verified everyday Mandarin reading for this combination.';const voice=localVoice('zh');if(!voice)return 'No local Mandarin voice found. The visual challenges still work. A parent can add a Mandarin voice in device settings.';const u=new SpeechSynthesisUtterance(cue);u.voice=voice;u.lang=voice.lang;u.rate=slow?.65:.85;u.pitch=1;const token=generation;u.onerror=()=>{if(token===generation)window.dispatchEvent(new CustomEvent('audio-error',{detail:'Mandarin TTS could not play. Use the visual clue or try again.'}));};window.speechSynthesis.speak(u);return 'Temporary Mandarin browser TTS • device voice, not a verified recording';}
 export function chime(correct:boolean,sound:boolean){if(sound)void pitchSound(correct?2:3,false,true).catch(()=>{});}
 
-// Reuse the media element started by the initial user gesture; report playback-policy failures.
-// Cancellation detaches ended handlers, so a stopped sequence can never start its next clip.
+// Keep one media element and the current clip when Safari needs a fresh gesture.
+export type AudioRecovery={message:string;resume:()=>void};
+const recovery=(detail:AudioRecovery|null)=>window.dispatchEvent(new CustomEvent('audio-recovery',{detail}));
 export function playAudioSequence(files:string[],options:{slow?:boolean;gapMs?:number;rates?:number[];onStep?:(index:number)=>void;onFinish?:(reason:'complete'|'cancelled'|'error')=>void}={}){
  stopAudio();
  if(!files.length){options.onFinish?.('complete');return ()=>{};}
- const token=generation,player=new Audio();let index=0;let timer:ReturnType<typeof setTimeout>|undefined;
- let finished=false;active=player;player.playbackRate=options.slow?.78:1;player.preservesPitch=true;
- const finish=(reason:'complete'|'cancelled'|'error')=>{if(finished)return;finished=true;clearTimeout(timer);player.onended=null;player.onerror=null;player.pause();if(active===player)active=undefined;if(finishSequence===finish)finishSequence=undefined;options.onFinish?.(reason);};
+ const token=generation,player=new Audio();
+ let index=0,finished=false,blocked=false,attempt=0;
+ let timer:ReturnType<typeof setTimeout>|undefined,watchdog:ReturnType<typeof setTimeout>|undefined;
+ active=player;player.preservesPitch=true;
+ const live=()=>token===generation&&!finished;
+ const finish=(reason:'complete'|'cancelled'|'error')=>{
+  if(finished)return;finished=true;attempt++;clearTimeout(timer);clearTimeout(watchdog);
+  player.onended=null;player.onerror=null;player.ontimeupdate=null;player.onplaying=null;
+  player.pause();document.removeEventListener('visibilitychange',hidden);window.removeEventListener('pagehide',cancel);
+  if(active===player)active=undefined;if(finishSequence===finish)finishSequence=undefined;
+  recovery(null);options.onFinish?.(reason);
+ };
+ const cancel=()=>finish('cancelled');
+ const hidden=()=>{if(document.hidden)cancel();};
+ const offerResume=()=>{
+  if(!live()||blocked)return;blocked=true;attempt++;clearTimeout(watchdog);player.pause();
+  recovery({message:`Playback paused at clip ${index+1} of ${files.length}. Tap to continue from here.`,resume:()=>{if(!live()||!blocked)return;blocked=false;recovery(null);start();}});
+ };
+ const arm=()=>{clearTimeout(watchdog);if(live()&&!blocked)watchdog=setTimeout(offerResume,12000);};
+ const fail=(error?:unknown)=>{
+  if(!live())return;
+  if((error as {name?:string})?.name==='NotAllowedError'||(error as {name?:string})?.name==='AbortError'){offerResume();return;}
+  finish('error');window.dispatchEvent(new CustomEvent('audio-error',{detail:'A recording could not load. Reconnect once, then tap Play to retry.'}));
+ };
+ const start=()=>{
+  if(!live())return;const request=++attempt;arm();
+  try{void player.play().catch(error=>{if(request===attempt)fail(error);});}catch(error){fail(error);}
+ };
+ const next=()=>{
+  if(!live())return;
+  player.src=files[index].startsWith('blob:')?files[index]:import.meta.env.BASE_URL+files[index];
+  player.playbackRate=options.rates?.[index]??(options.slow?.78:1);
+  options.onStep?.(index);start();
+ };
  finishSequence=finish;
- const fail=()=>{if(token!==generation||finished)return;finish('error');window.dispatchEvent(new CustomEvent('audio-error',{detail:'A recording could not play. Tap Play again, or reconnect once to download the audio.'}));};
- const next=()=>{if(token!==generation||finished)return;if(index>=files.length){finish('complete');return;}player.src=files[index].startsWith('blob:')?files[index]:import.meta.env.BASE_URL+files[index];player.playbackRate=options.rates?.[index]??(options.slow?.78:1);options.onStep?.(index);void player.play().catch(fail);};
- player.onerror=fail;player.onended=()=>{if(token!==generation||finished)return;index++;if(index===files.length){finish('complete');return;}timer=setTimeout(next,options.gapMs??120);};
- next();
- return ()=>finish('cancelled');
+ player.onerror=()=>fail();player.ontimeupdate=arm;player.onplaying=arm;
+ player.onended=()=>{
+  if(!live()||blocked)return;attempt++;clearTimeout(watchdog);index++;
+  if(index===files.length){finish('complete');return;}
+  timer=setTimeout(next,options.gapMs??120);
+ };
+ document.addEventListener('visibilitychange',hidden);window.addEventListener('pagehide',cancel);
+ next();return cancel;
 }

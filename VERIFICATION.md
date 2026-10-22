@@ -1,4 +1,4 @@
-# Current pronunciation update verification
+# Verification history
 
 - 38 original Mandarin MP3 files selected from the licensed Chinese-Lessons.com archive. Original archive and individual file SHA-256 values are pinned in `public/mandarin-audio.json`.
 - All 38 MP3 files decode with ffprobe and have durations between 0.3 and 3 seconds; total 560,300 bytes. This checks playable files, not expert phonetic accuracy.
@@ -18,4 +18,4 @@
 
 ## V2.1 feature branch
 
-The branch implementation and the optional uploaded patch are different. The patch's `apply.py` was not executed. See `V21_RELEASE.md` for the actual audit, 53-test verification, known device-validation limitations and blocked publication status.
+The branch implementation and the optional uploaded patch are different. The patch's `apply.py` was not executed. See `V21_RELEASE.md` for the historical audit and intermediate 53-test result. V2.1 subsequently shipped with 64 passing tests through PR #1. See `V22_RELEASE.md` for the new verification run.

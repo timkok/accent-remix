@@ -1,6 +1,12 @@
-# Accent Remix V2.1 — reviewed implementation, publication blocked
+# Accent Remix V2.1 — published release history
 
-## 1. Verified starting point
+V2.1 was published on 2026-10-22 through [PR #1](https://github.com/timkok/accent-remix/pull/1), merge `427bc3f90dfc442cbebd19d6656f0752608497f6`. [Pages build and deployment succeeded](https://github.com/timkok/accent-remix/actions/runs/39840829710). Its final 64-test suite passed. Connected Chrome checks covered update activation, listening gates, hint-assisted evidence, three-word playback and a 390px layout. Physical Safari recording was not verified.
+
+The sections below preserve the earlier development history, including the initial blocked API attempt and intermediate 53-test result. Those were historical states, not the current publication status. See V22_RELEASE.md for subsequent work.
+
+## Historical development log
+
+### 1. Verified starting point
 
 Repository: https://github.com/timkok/accent-remix
 
@@ -70,7 +76,7 @@ Not completed: visual and real-media testing of this new build in Chrome or Safa
 
 Before merging, verify the branch on an actual iPad/iPhone: autoplay continuation, MP4 recording, microphone permission denial/revocation, hide/resume, A/B playback, touch targets, keyboard/screen-reader flow and offline restart. Verify an existing install's waiting-service-worker update as well. No screenshot of the new UI is claimed.
 
-## 8. Commit, PR and deployment status
+## 8. Historical initial API publication attempt (resolved)
 
 Local feature branch: `feature/listening-adventure-v21`. The included `release-manifest.json` gives the actual local commit and base SHA.
 
@@ -78,13 +84,13 @@ GitHub branch creation returned:
 
 `GitHub API error 403: Resource not accessible by integration`
 
-Therefore there is **no remote feature branch, no PR, no merge and no V2.1 deployment** from this task. Following the requested fallback, the deliverable is a reviewable patch instead of direct production editing. No force-push, browser write fallback or workflow modification to bypass permissions was attempted.
+At that initial checkpoint there was no remote feature branch, PR, merge or V2.1 deployment. This was later resolved through the signed-in GitHub UI, as recorded at the top of this document. Following the requested fallback, the deliverable is a reviewable patch instead of direct production editing. No force-push, browser write fallback or workflow modification to bypass permissions was attempted.
 
-Production remains at https://timkok.github.io/accent-remix/ on the previously successful release.
+At that checkpoint production still served the previous release; V2.1 subsequently shipped at the same URL.
 
 ## 9. Remaining work and limits
 
-- Review the diff, validate the new UI and physical-device recording, then publish through the existing GitHub Pages workflow from an account/integration with repository write access.
+- Publication and desktop UI validation were subsequently completed. Physical-device recording validation remains outstanding.
 - Cross-device backup/restore UI is not implemented. Named trains and progress live in one browser profile and can be lost if browser data is cleared.
 - Daily duration is approximate, and no speech recognition or pronunciation grading is provided.
 - Recorded speech and expert phonetic accuracy have not been independently assessed in this task. Existing audio credits and licenses remain required.
@@ -97,4 +103,4 @@ Remote main re-fetched at 3e4d878abc907167d9915d0d10057441d129a83b. Added BENCHM
 
 64/64 automated tests passed across six files; TypeScript and production build passed. Tests include written/spoken pair metadata, real-audio inventory, balanced/rotated check, same-syllable clips, due-pair scheduling, distinct-day recognition, hint latching, two-word reconstruction, rename/reorder/delete persistence and idle/hidden time exclusion. All earlier privacy and offline tests remain.
 
-Browser UI successfully created feature/listening-adventure-v21 after the integration API previously returned 403. Publication/PR and rendered browser acceptance remain pending until reported explicitly. No real iOS/Safari or microphone acoustic result is claimed.
+Browser UI successfully created feature/listening-adventure-v21 after the integration API previously returned 403. PR #1 was subsequently merged and deployed; the completed browser checks are recorded at the top of this document. No real iOS/Safari or microphone acoustic result is claimed.

@@ -15,7 +15,8 @@ describe.skipIf(!existsSync('dist/sw.js'))('production offline worker',()=>{
  expect(store.size).toBeGreaterThan(3);
  const manifest=JSON.parse(readFileSync('public/mandarin-audio.json','utf8'));
  expect(Object.keys(manifest.clips)).toHaveLength(38);
- for(const clip of Object.values(manifest.clips)){expect(createHash('sha256').update(readFileSync('dist/'+clip.file)).digest('hex')).toBe(clip.sha256);handlers.fetch({request:{method:'GET',url:'https://example.com/game/'+clip.file,mode:'cors'},respondWith:(p)=>{pending=p;}});expect(await pending).toEqual({url:'./'+clip.file});}
+ const wholeWords=JSON.parse(readFileSync('public/word-audio.json','utf8')).words;expect(wholeWords).toHaveLength(48);expect(new Set(wholeWords.map(w=>w.id)).size).toBe(48);
+ for(const clip of [...Object.values(manifest.clips),...wholeWords]){expect(createHash('sha256').update(readFileSync('dist/'+clip.file)).digest('hex')).toBe(clip.sha256);handlers.fetch({request:{method:'GET',url:'https://example.com/game/'+clip.file,mode:'cors'},respondWith:(p)=>{pending=p;}});expect(await pending).toEqual({url:'./'+clip.file});}
 handlers.activate({waitUntil:(p)=>{pending=p;}});await pending;expect(deleted).toEqual(['accent-remix-old']);expect(claimed).toBe(true);
  handlers.fetch({request:{method:'GET',url:'https://example.com/game/',mode:'navigate'},respondWith:(p)=>{pending=p;}});expect(await pending).toEqual({url:'./index.html'});
  });

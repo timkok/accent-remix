@@ -48,36 +48,20 @@ Official publishing instructions: https://docs.github.com/en/pages/getting-start
 
 ## Important audio status — read before teaching
 
-**Verified native Mandarin recordings are NOT included.** The native recording manifest is intentionally empty. Mandarin playback uses a clearly labeled, temporary **local browser Mandarin TTS** fallback when installed. TTS output is synthetic; its pronunciation, tone realization and third-tone context have not been reviewed by a native speaker. A parent/teacher should check it before treating it as a pronunciation model.
+**38 human Mandarin recordings are included in the deployed game.** They come from [Chinese-Lessons.com’s Mandarin Sounds download](https://chinese-lessons.com/download.htm), credited to Chinese-Lessons.com and its volunteer voice contributors, under [CC BY-NC-ND 3.0 US](https://creativecommons.org/licenses/by-nc-nd/3.0/us/). This is a free, noncommercial educational game. The selected original MP3 files are redistributed byte-for-byte; no edited recordings are distributed. Individual speaker names are not provided by the source. These are human recordings, not synthetic speech; they have not received a separate expert phonetic review for this project.
 
-Only voices with `localService === true` are selected, avoiding remote speech services. No English voice is used to pronounce Mandarin. If a suitable Mandarin voice is missing, all visual games remain playable and listening questions offer visual clues. On devices with no local English voice, Echo's prompts remain visible as text.
+The first mission’s two sound cards and recording example now play real syllables (for LIMIT: lí + mì). Secret Pinyin, Sound Lab, and listening questions use the same recordings. Slow playback requests pitch preservation. English narration still uses an installed local device voice. The electronic mystery trails in Voice Detective remain ear-training effects, explicitly labeled as such.
 
-The electronic pitch trails are ear-training sound effects, not speech recordings. Changing character mode changes the performance prompt/visual styling and pitch-guide speed or timbre; it does not synthesize accented English. The child performs the voice remix.
+`limit → LI + MI` is a playful memory bridge, not an English phonetic transcription. Character modes are performance prompts for the child; they do not change the Mandarin recordings into accents. Indian English is not imitated or treated as a Mandarin-tone formula.
 
-`limit → LI + MI` is explicitly labeled as a playful memory bridge, not the word's phonetic transcription. Indian English is not imitated or treated as a tone formula. Rare combinations (`lá`, `pǎ`, `nā`) and the isolated ambiguous `lī` have no TTS cue; they remain tone-mark/shape explorations without invented everyday meanings. Other character cues may be polyphonic, so TTS is not “verified native audio.”
+The sound set covers all four tones for ma, mi, li, lu, la, ba, da and tu, plus pa1/pa2/pa4 and na2/na3/na4. pǎ and nā remain visual practice. lī and lá are less common readings, with no invented everyday vocabulary example. All listening-quiz combinations have recordings.
 
-Full third-tone dipping is introduced as an isolated form. The secret lesson also explains that third tones often stay low in connected speech and rise before another third tone.
+### Audio packaging and credits
 
-## Replace temporary TTS with verified native recordings
-
-1. Obtain or record each syllable with a fluent Mandarin speaker; ensure permission/license for redistribution and teaching. No child recordings should be uploaded.
-2. A Mandarin teacher should review the file against its intended syllable, tone and natural isolated pronunciation.
-3. Store reviewed clips in `public/audio/mandarin/`, e.g. `ma1.mp3`. Keep similar loudness, trim silence and avoid adding pitch transformations.
-4. Add entries in `src/audio.ts` → `audioManifest`:
-
-```ts
-ma1: {
-  file: 'audio/mandarin/ma1.mp3',
-  source: 'Recording session date / original licensed source URL',
-  license: 'Actual redistribution permission or license',
-  speaker: 'Consenting adult speaker identifier'
-}
-```
-
-5. Rebuild. The service-worker build includes every file in `dist`, so bundled recordings are cached. Playback selects a manifest recording before TTS; slow playback requests pitch preservation.
-6. Test each clip on target iPhone/iPad and desktop browsers. Never mark synthetic or unreviewed clips as verified.
-
-Source guidance on device-local voices: https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesisVoice/localService
+- `public/mandarin-audio.json` lists source, license, acknowledgements, original archive checksum and every MP3 checksum. Parent Base links to the source, license and full manifest.
+- Building requires Python 3 and an internet connection on the first build. `scripts/build-sw.mjs` downloads the original licensed archive into a temporary build cache, verifies checksums, and extracts only the 38 selected files into `dist/audio/mandarin/` before generating the offline cache. Changed or missing source files fail the build.
+- Once deployed, playback is served entirely from this game’s own host. The child’s browser never contacts the source site to play a clip. All recordings are cached for offline play with the app.
+- To replace a recording, use a source that permits redistribution, update its attribution and checksum, and verify the filename, syllable and tone. Do not upload a child’s recordings.
 
 ## Privacy and storage
 
@@ -91,7 +75,7 @@ Source guidance on device-local voices: https://developer.mozilla.org/en-US/docs
 
 The build generates a content-hashed service-worker cache containing the app shell and all bundled assets. Open the production HTTPS site online once and wait for Parent Base to report that assets are cached. Then install using the browser menu (iOS/iPadOS: Share → Add to Home Screen). Reopen offline.
 
-Visual games, electronic pitch guides, scoring, saved progress and local recording need no internet once cached. Speech requires a preinstalled local device voice. Installation and microphone behavior vary by OS/browser. The service worker is enabled only in production. New versions activate after the prior app tabs close; close/reopen to update.
+Visual games, electronic pitch guides, scoring, saved progress and local recording need no internet once cached. Recorded Mandarin examples are cached with the app; only English host narration requires a preinstalled local device voice. Installation and microphone behavior vary by OS/browser. The service worker is enabled only in production. New versions activate after the prior app tabs close; close/reopen to update.
 
 ## Tests and verification
 
@@ -107,6 +91,6 @@ See `VERIFICATION.md` for actual verification results and remaining device check
 - `src/audio.ts`: local speech, audio manifest, Web Audio pitch guides
 - `src/engine.ts`: storage, scoring, drawing matching
 - `scripts/build-sw.mjs`: offline cache generation
-- `public/`: install metadata, icon and future reviewed recordings
+- `public/`: install metadata, icon and Mandarin audio license manifest
 - `tests/`: unit, UI and offline-worker tests
 - `.github/workflows/deploy.yml`: GitHub Pages build/deploy

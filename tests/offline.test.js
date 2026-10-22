@@ -8,9 +8,9 @@ import {runInNewContext} from 'node:vm';
 describe('production offline worker',()=>{
  it('precaches assets, serves offline app navigation, and keeps foreign caches',async()=>{
  const handlers={};const store=new Map();let deleted=[];let claimed=false;let activated=false;
- const cache={addAll:async(urls)=>{for(const u of urls){expect(existsSync('dist/'+u.slice(2))).toBe(true);store.set(new URL(u,'https://example.com/game/').href,{url:u});}},match:async(req)=>store.get(typeof req==='string'?req:req.url||req.href)};
+ const cache={addAll:async(requests)=>{for(const req of requests){const u='./'+new URL(req.url).pathname.slice('/game/'.length);expect(req.cache).toBe('reload');expect(existsSync('dist/'+u.slice(2))).toBe(true);if(u==='./index.html')expect(req.integrity).toBe('sha256-'+createHash('sha256').update(readFileSync('dist/index.html')).digest('base64'));store.set(req.url,{url:u});}},match:async(req)=>store.get(typeof req==='string'?req:req.url||req.href)};
  const caches={open:async()=>cache,keys:async()=>['unrelated-cache','accent-remix-old','accent-remix-v22:https://example.com/other/:old','accent-remix-v22:https://example.com/game/:old'],delete:async(k)=>{deleted.push(k);return true;}};
- runInNewContext(readFileSync('dist/sw.js','utf8'),{self:{skipWaiting:()=>{activated=true;},location:{origin:'https://example.com'},registration:{scope:'https://example.com/game/'},clients:{claim:()=>{claimed=true;}},addEventListener:(n,f)=>{handlers[n]=f;}},caches,URL,Response,fetch:async()=>{throw Error('offline');}});
+ runInNewContext(readFileSync('dist/sw.js','utf8'),{self:{skipWaiting:()=>{activated=true;},location:{origin:'https://example.com'},registration:{scope:'https://example.com/game/'},clients:{claim:()=>{claimed=true;}},addEventListener:(n,f)=>{handlers[n]=f;}},caches,URL,Request,Response,fetch:async()=>{throw Error('offline');}});
  let pending=Promise.resolve();handlers.install({waitUntil:(p)=>{pending=p;}});await pending;
  expect(store.size).toBeGreaterThan(3);expect(activated).toBe(false);handlers.message({data:{type:'OTHER'}});expect(activated).toBe(false);handlers.message({data:{type:'ACTIVATE_UPDATE'}});expect(activated).toBe(true);
  const manifest=JSON.parse(readFileSync('public/mandarin-audio.json','utf8'));
@@ -36,7 +36,7 @@ describe('scoped offline updates and Safari range requests',()=>{
  });
  it('does not activate a partially installed cache when an audio download fails',async()=>{
   const handlers={};let activated=false;
-  runInNewContext(readFileSync('dist/sw.js','utf8'),{self:{registration:{scope:'https://example.com/game/'},skipWaiting:()=>activated=true,addEventListener:(n,f)=>handlers[n]=f},caches:{open:async()=>({addAll:async()=>{throw Error('offline during install');}})},URL,Response,Headers});
+  runInNewContext(readFileSync('dist/sw.js','utf8'),{self:{registration:{scope:'https://example.com/game/'},skipWaiting:()=>activated=true,addEventListener:(n,f)=>handlers[n]=f},caches:{open:async()=>({addAll:async()=>{throw Error('offline during install');}})},URL,Request,Response,Headers});
   let installation;handlers.install({waitUntil:p=>installation=p});await expect(installation).rejects.toThrow('offline during install');expect(activated).toBe(false);
  });
 });

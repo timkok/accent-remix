@@ -102,3 +102,26 @@ See `VERIFICATION.md` for actual verification results and remaining device check
 - `public/`: install metadata, icon and Mandarin audio license manifest
 - `tests/`: unit, UI and offline-worker tests
 - `.github/workflows/deploy.yml`: GitHub Pages build/deploy
+
+
+## V2.1 learning adventure (feature branch, not yet published)
+
+The optional experimental patch was reviewed as reference, not executed. See `V21_RELEASE.md` for audit findings, verification and release status.
+
+- **Listen & Guess:** genuine complete-word recordings, four meaning/picture answers, same/different pairs, ordering three words and matching a displayed meaning to one of two recordings. Audio completion unlocks answers; hints and first responses are recorded explicitly.
+- **Voice Compare:** shared playback control for native examples, slow examples, the temporary child clip and original-then-child comparison. All clips are local Blob URLs; microphone tracks and Blob URLs are released after leaving/changing the sound. No speech grading.
+- **Saved trains:** current six-word draft and up to twelve named trains are stored locally. Same-name saves update that train; a thirteenth cannot silently evict an existing train. Deletion asks for confirmation. Challenge My Train uses its selected words as targets.
+- **Daily adventure:** English remix warm-up, prioritized due/known words, one new word and a short final challenge. Newly taught-word answers are labeled practice. Approximate 3/5/8-minute goals vary the review length; there is no timer requirement or missed-day penalty.
+- **Evidence:** Mandarin tone listening, visual pitch, Pinyin marks, whole-word audio meanings, comparison/order, electronic pitch and written vocabulary have separate summaries. Speaking is participation only. Existing game points/badges remain in their original storage key. Old aggregate scores are not retrospectively reclassified as independent listening.
+- **Review:** missed or assisted word meanings return immediately; independent success schedules 1, 2, 4, 8, then 14 days. Repeated success in one calendar day cannot inflate the interval. This is a simple heuristic, not a validated learning assessment.
+- **Persistence:** `accent-remix-learning-v1` contains version 2 sanitized word IDs, train names, word review aggregates, up to 1,000 assessment events and 365 days of participation/session history. Experimental V1 word aggregates migrate without inventing events. The original progress key is preserved. No audio is serialized. Clearing browser data removes local learning history.
+- **Updates:** a waiting service worker offers a Save progress & update button. Activation is explicit; no forced reload mid-recording. Older deployed clients need one close/reopen to receive this update UI.
+
+Run `npm run build && npm test` before review and publication. The build still packages all 86 unchanged licensed Mandarin recordings. No dependency, paid API, backend, account, tracker or new audio source is added.
+
+
+## Competitor-informed listening release
+
+Echo’s Listening Detective adds focused single-tone listening, same-syllable Sound Twins, authentic whole-word Tone Pair Challenge and an eight-item balanced ear check. Advanced pairs distinguish written 3–3 from spoken 2–3, low third tones and neutral endings. Existing Word Train adds explicit 2–6 distinct-word reconstruction and stable saved-list rename. Daily Adventure now includes targeted tone practice.
+
+Parent Base separates tone, tone-pair, contrast, vocabulary, visual, Pinyin and speaking-participation evidence. A word is counted as repeatedly recognized only after independent successes on different local days. Practice time is an interaction-window estimate, not idle page time. No recording analysis, paid API or new dependency was added. See BENCHMARK.md for the audit, sources and design decisions.

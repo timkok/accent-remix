@@ -23,6 +23,24 @@ with zipfile.ZipFile(io.BytesIO(data)) as z:
         out=pathlib.Path('dist')/clip['file'];out.parent.mkdir(parents=True,exist_ok=True);out.write_bytes(data)
 `],{stdio:'inherit'});
 console.log('Bundled original Mandarin recordings:',Object.keys(audio.clips).length);
+// Whole-word recordings retain natural light syllables and within-word tone changes.
+execFileSync('python3',['-c',`
+import concurrent.futures,hashlib,json,pathlib,tempfile,urllib.request
+m=json.loads(pathlib.Path('public/word-audio.json').read_text())
+cache=pathlib.Path(tempfile.gettempdir())/'accent-remix-words';cache.mkdir(exist_ok=True)
+def bundle(w):
+    saved=cache/(w['sha256']+'.mp3')
+    if saved.exists():data=saved.read_bytes()
+    else:
+        with urllib.request.urlopen(w['source'],timeout=60) as response:data=response.read()
+        assert hashlib.sha256(data).hexdigest()==w['sha256'],w['id']+' checksum mismatch'
+        saved.write_bytes(data)
+    assert hashlib.sha256(data).hexdigest()==w['sha256'],w['id']+' checksum mismatch'
+    out=pathlib.Path('dist')/w['file'];out.parent.mkdir(parents=True,exist_ok=True);out.write_bytes(data)
+with concurrent.futures.ThreadPoolExecutor(max_workers=6) as pool:list(pool.map(bundle,m['words']))
+print('Bundled whole-word recordings:',len(m['words']))
+`],{stdio:'inherit'});
+
 const files=await walk('dist');const hash=createHash('sha256');for(const f of files)hash.update(await readFile(f));const name='accent-remix-'+hash.digest('hex').slice(0,12);const urls=files.map(p=>'./'+p.slice(5));
 await writeFile('dist/sw.js',`const CACHE=${JSON.stringify(name)};const FILES=${JSON.stringify(urls)};
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(FILES))));

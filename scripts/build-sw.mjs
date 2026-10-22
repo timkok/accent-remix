@@ -50,5 +50,6 @@ print('Bundled whole-word recordings:',len(m['words']))
 const files=await walk('dist');const hash=createHash('sha256');for(const f of files)hash.update(f).update(await readFile(f));
 const worker=await readFile('scripts/offline-worker.js','utf8');hash.update(worker);
 const version=hash.digest('hex').slice(0,12),urls=files.map(p=>'./'+p.slice(5));
-await writeFile('dist/sw.js',worker.replace('__BUILD_HASH__',version).replace('__ASSET_LIST__',JSON.stringify(urls)));
+const indexIntegrity='sha256-'+createHash('sha256').update(await readFile('dist/index.html')).digest('base64');
+await writeFile('dist/sw.js',worker.replace('__BUILD_HASH__',version).replace('__ASSET_LIST__',JSON.stringify(urls)).replace('__INDEX_INTEGRITY__',indexIntegrity));
 console.log('Offline cache built:',files.length,'assets');

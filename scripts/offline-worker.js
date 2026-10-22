@@ -2,7 +2,8 @@
 const PREFIX='accent-remix-v22:'+self.registration.scope+':';
 const CACHE=PREFIX+'__BUILD_HASH__';
 const FILES=__ASSET_LIST__;
-self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(FILES))));
+const INDEX_INTEGRITY='__INDEX_INTEGRITY__';
+self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(FILES.map(file=>new Request(new URL(file,self.registration.scope),{cache:'reload',integrity:file==='./index.html'?INDEX_INTEGRITY:''}))))));
 self.addEventListener('message',e=>{if(e.data?.type==='ACTIVATE_UPDATE')self.skipWaiting();});
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith(PREFIX)&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 async function rangeResponse(request,cached){

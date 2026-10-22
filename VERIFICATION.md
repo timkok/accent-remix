@@ -14,3 +14,8 @@
 - UI tests verify both remix sounds play in order, mute cancels the pending second clip, searching/selecting a word loads its whole recording, repeated trains honor the echo gap, leaving the page stops playback, and media failure cannot advance the queue.
 - Offline tests verify checksums and offline responses for all 86 Mandarin audio assets.
 - Human recordings preserve their original pronunciation. This project has not performed an independent expert review of every recording; device acoustic quality still requires physical-device checking.
+
+
+## V2.1 feature branch
+
+The branch implementation and the optional uploaded patch are different. The patch's `apply.py` was not executed. See `V21_RELEASE.md` for the actual audit, 53-test verification, known device-validation limitations and blocked publication status.

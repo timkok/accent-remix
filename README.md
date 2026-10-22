@@ -63,6 +63,14 @@ The sound set covers all four tones for ma, mi, li, lu, la, ba, da and tu, plus 
 - Once deployed, playback is served entirely from this game’s own host. The child’s browser never contacts the source site to play a clip. All recordings are cached for offline play with the app.
 - To replace a recording, use a source that permits redistribution, update its attribution and checksum, and verify the filename, syllable and tone. Do not upload a child’s recordings.
 
+## Connected words and Word Train
+
+The home page and map include **Build a word train**. It offers 48 complete word recordings in seven categories, including family, food, school, animals and sports. These retain the speaker’s within-word tone changes and light syllables; they are not assembled from isolated Mandarin syllables. Written Pinyin keeps dictionary tones. The player offers normal/slow playback, a train of up to six words, reordering/removal, 1–3 repetitions and an optional 2.2-second pause to echo each word. The train is a sequence of separate whole-word recordings, not a natural sentence recording. No automatic speech scoring is performed.
+
+The English remix library now has 12 words/names. **Hear both sounds together** plays its rising and falling recordings in order. This remains a playful approximate memory bridge, not an English pronunciation or a natural Chinese word. Mute, Stop, changing page, starting a recording and hiding the tab cancel the queue and any pending next clip.
+
+Whole-word audio: © 2009 Yue Tan, Shtooka Project / University of Caen; MP3 preparation by Hugo Lopez; technical support by Nicolas Vion. Source: https://github.com/hugolpz/audio-cmn, pinned revision `59dbafbda8b172ffc3b8b295cd5938ae1b3de803`. License: https://creativecommons.org/licenses/by-sa/3.0/us/ (CC BY-SA 3.0 US). The selected 64k MP3s are redistributed unchanged, retaining that license. `public/word-audio.json` includes per-file source URLs, hashes, credits and word metadata. The player links to this manifest. The build fetches these files, verifies their hashes and includes all 48 in the offline cache. It does not contact the source repository during playback.
+
 ## Privacy and storage
 
 - No microphone permission is requested on load. Recording begins only after the user presses Start recording and grants permission.

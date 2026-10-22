@@ -16,12 +16,13 @@ Bonus: draw four pitch contours with pointer/touch events. The score measures dr
 
 ## Run locally
 
-Requires Node 22 (Node 20.19+ also supports the current tools).
+Requires Node 22.12+ or Node 24, plus Python 3 for the verified audio build.
 
 ```sh
 npm ci
+npm run build
 npm test
-npm run dev
+npm run preview
 ```
 
 Build and preview the offline-enabled production app:
@@ -83,7 +84,7 @@ Whole-word audio: © 2009 Yue Tan, Shtooka Project / University of Caen; MP3 pre
 
 The build generates a content-hashed service-worker cache containing the app shell and all bundled assets. Open the production HTTPS site online once and wait for Parent Base to report that assets are cached. Then install using the browser menu (iOS/iPadOS: Share → Add to Home Screen). Reopen offline.
 
-Visual games, electronic pitch guides, scoring, saved progress and local recording need no internet once cached. Recorded Mandarin examples are cached with the app; only English host narration requires a preinstalled local device voice. Installation and microphone behavior vary by OS/browser. The service worker is enabled only in production. New versions activate after the prior app tabs close; close/reopen to update.
+Visual games, electronic pitch guides, scoring, saved progress and local recording need no internet once cached. Recorded Mandarin examples are cached with the app; only English host narration requires a preinstalled local device voice. Installation and microphone behavior vary by OS/browser. The service worker is enabled only in production. A waiting update is offered explicitly. Finish your activity, then use Save progress & update; saving must succeed before activation. No automatic reload is requested during practice.
 
 ## Tests and verification
 
@@ -104,9 +105,9 @@ See `VERIFICATION.md` for actual verification results and remaining device check
 - `.github/workflows/deploy.yml`: GitHub Pages build/deploy
 
 
-## V2.1 learning adventure (feature branch, not yet published)
+## V2.1 learning adventure (published)
 
-The optional experimental patch was reviewed as reference, not executed. See `V21_RELEASE.md` for audit findings, verification and release status.
+The optional experimental patch was reviewed as reference, not executed. V2.1 shipped in [PR #1](https://github.com/timkok/accent-remix/pull/1), merge `427bc3f90dfc442cbebd19d6656f0752608497f6`. See `V21_RELEASE.md` for its historical audit and verification.
 
 - **Listen & Guess:** genuine complete-word recordings, four meaning/picture answers, same/different pairs, ordering three words and matching a displayed meaning to one of two recordings. Audio completion unlocks answers; hints and first responses are recorded explicitly.
 - **Voice Compare:** shared playback control for native examples, slow examples, the temporary child clip and original-then-child comparison. All clips are local Blob URLs; microphone tracks and Blob URLs are released after leaving/changing the sound. No speech grading.
@@ -125,3 +126,15 @@ Run `npm run build && npm test` before review and publication. The build still p
 Echo’s Listening Detective adds focused single-tone listening, same-syllable Sound Twins, authentic whole-word Tone Pair Challenge and an eight-item balanced ear check. Advanced pairs distinguish written 3–3 from spoken 2–3, low third tones and neutral endings. Existing Word Train adds explicit 2–6 distinct-word reconstruction and stable saved-list rename. Daily Adventure now includes targeted tone practice.
 
 Parent Base separates tone, tone-pair, contrast, vocabulary, visual, Pinyin and speaking-participation evidence. A word is counted as repeatedly recognized only after independent successes on different local days. Practice time is an interaction-window estimate, not idle page time. No recording analysis, paid API or new dependency was added. See BENCHMARK.md for the audit, sources and design decisions.
+
+
+## V2.2 mobile reliability
+
+See [V22_RELEASE.md](V22_RELEASE.md) for the starting commit, fixes, actual verification, device limits and publication tracking. This is an incremental update to the published V2.1 game.
+
+- Blocked/stalled playlists offer **Tap to continue audio** at the current clip. Stop, mute, page hide and activity changes cancel queued audio. Word Train shows word position and repeat round; four presets use the existing licensed vocabulary.
+- The recorder detects supported formats (including MP4), cancels delayed permission requests, releases disconnected/hidden microphone sessions and clears clips when the example changes. Recordings remain temporary and local; no speech scoring or uploads.
+- Update activation first saves both progress stores. Storage failure keeps the game open; unreadable stored history is protected from overwrite and can be reloaded. Updates are never automatic during practice.
+- The offline worker isolates caches by app scope, keeps navigation and assets on one release and serves audio byte ranges. Legacy unscoped caches are conservatively retained to avoid deleting another install's cache.
+- Returning players get a prominent existing Daily Adventure button. New players keep the English introduction and meet a new word before the word challenge. Wrong train orders can be corrected as practice without changing the first-attempt record.
+- Development requires Node 22.12+ (supported even-numbered versions) and Vite 6.4+. Vitest 5.0.5 replaces vulnerable test tooling. `npm test` uses one worker to avoid CPU-contention timeouts in constrained environments; run `npm run build` first so offline tests inspect the generated worker. Pull requests run build/tests before main deploys through Pages.

@@ -6,12 +6,15 @@ async function walk(dir){let all=[];for(const f of await readdir(dir,{withFileTy
 const audio=JSON.parse(await readFile('public/mandarin-audio.json','utf8'));
 execFileSync('python3',['-c',`
 import hashlib,io,json,pathlib,tempfile,urllib.request,zipfile
+import sys
+sys.path.insert(0,'scripts')
+from audio_download import download
 m=json.loads(pathlib.Path('public/mandarin-audio.json').read_text())
 cache=pathlib.Path(tempfile.gettempdir())/'accent-remix-audio';cache.mkdir(exist_ok=True)
 archive=cache/(m['archiveSha256']+'.zip')
 if not archive.exists():
     req=urllib.request.Request(m['archive'],headers={'User-Agent':'AccentRemix-EducationalAudio/1.0'})
-    with urllib.request.urlopen(req,timeout=90) as response:data=response.read()
+    data=download(req,timeout=90)
     assert hashlib.sha256(data).hexdigest()==m['archiveSha256'],'Audio archive checksum changed'
     archive.write_bytes(data)
 data=archive.read_bytes()
@@ -26,24 +29,26 @@ console.log('Bundled original Mandarin recordings:',Object.keys(audio.clips).len
 // Whole-word recordings retain natural light syllables and within-word tone changes.
 execFileSync('python3',['-c',`
 import concurrent.futures,hashlib,json,pathlib,tempfile,urllib.request
+import sys
+sys.path.insert(0,'scripts')
+from audio_download import download
 m=json.loads(pathlib.Path('public/word-audio.json').read_text())
 cache=pathlib.Path(tempfile.gettempdir())/'accent-remix-words';cache.mkdir(exist_ok=True)
 def bundle(w):
     saved=cache/(w['sha256']+'.mp3')
     if saved.exists():data=saved.read_bytes()
     else:
-        with urllib.request.urlopen(w['source'],timeout=60) as response:data=response.read()
+        data=download(w['source'])
         assert hashlib.sha256(data).hexdigest()==w['sha256'],w['id']+' checksum mismatch'
         saved.write_bytes(data)
     assert hashlib.sha256(data).hexdigest()==w['sha256'],w['id']+' checksum mismatch'
     out=pathlib.Path('dist')/w['file'];out.parent.mkdir(parents=True,exist_ok=True);out.write_bytes(data)
-with concurrent.futures.ThreadPoolExecutor(max_workers=6) as pool:list(pool.map(bundle,m['words']))
+with concurrent.futures.ThreadPoolExecutor(max_workers=3) as pool:list(pool.map(bundle,m['words']))
 print('Bundled whole-word recordings:',len(m['words']))
 `],{stdio:'inherit'});
 
-const files=await walk('dist');const hash=createHash('sha256');for(const f of files)hash.update(await readFile(f));const name='accent-remix-'+hash.digest('hex').slice(0,12);const urls=files.map(p=>'./'+p.slice(5));
-await writeFile('dist/sw.js',`const CACHE=${JSON.stringify(name)};const FILES=${JSON.stringify(urls)};
-self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(FILES))));
-self.addEventListener('message',e=>{if(e.data?.type==='ACTIVATE_UPDATE')self.skipWaiting();});
-self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('accent-remix-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
-self.addEventListener('fetch',e=>{if(e.request.method!=='GET'||new URL(e.request.url).origin!==self.location.origin)return;e.respondWith(caches.open(CACHE).then(async c=>{const cached=await c.match(e.request);if(cached)return cached;try{return await fetch(e.request)}catch(err){if(e.request.mode==='navigate')return(await c.match(new URL('./index.html',self.registration.scope)))||Response.error();return Response.error();}}));});`);console.log('Offline cache built:',files.length,'assets');
+const files=await walk('dist');const hash=createHash('sha256');for(const f of files)hash.update(f).update(await readFile(f));
+const worker=await readFile('scripts/offline-worker.js','utf8');hash.update(worker);
+const version=hash.digest('hex').slice(0,12),urls=files.map(p=>'./'+p.slice(5));
+await writeFile('dist/sw.js',worker.replace('__BUILD_HASH__',version).replace('__ASSET_LIST__',JSON.stringify(urls)));
+console.log('Offline cache built:',files.length,'assets');

@@ -21,12 +21,14 @@ Historical preparation checkpoint: the connector initially lacked write permissi
 ## Verification actually performed
 
 - Original baseline: initial parallel run had 62 passes and 2 five-second test timeouts under CPU contention. Re-running the unchanged baseline with one worker passed **64/64 across 6 files**. A clean archive of the starting commit also built successfully, producing the original `index-DPJ0oQ7J.js`. This is a new run, not a copied historical claim.
-- Final: **83/83 tests passed across 7 files, 0 failed, 0 skipped**, using Vitest 5.0.5. TypeScript and production build passed; all 86 audio files and 96 cached assets were packaged. See delivery `test-results.json` and `build.log` for exact results.
+- Final: **84/84 tests passed across 8 files, 0 failed, 0 skipped**, using Vitest 5.0.5. TypeScript and production build passed; all 86 audio files and 96 cached assets were packaged. See delivery `test-results.json` and `build.log` for exact results.
 - Regression coverage includes blocked-second-clip recovery, a stalled-player watchdog, cancellation/late callbacks, answer gating through resume, MP4 selection, empty recording, hidden/disconnected microphone, pending permission cancellation, storage corruption/read denial/quota failure, preserving old settings/rewards/trains, save-before-update, order corrections without duplicate credit, 86 offline audio responses/checksums, ranges, failed installs and foreign-cache isolation.
 - `npm audit --json`: **0 known vulnerabilities**, down from 3 (1 moderate, 2 critical) in test tooling. Vitest 5 removes tinypool and uses patched @vitest/mocker. The lockfile is updated without `npm audit fix --force`.
 - Source review retained keyboard-operable native buttons, visible focus outlines, existing 44px touch targets and reduced-motion CSS. No new drag-only interaction.
 - Browser checks of **this V2.2 build were not completed**: local preview was started, but the connected browser could not reach it and then timed out. The fallback browser verified only the public V2.1 repository and its current commit, not the new game.
 - **Not verified:** rendered desktop/mobile V2.2 layout, real audio playback quality, actual offline restart/update in a browser, iPhone Safari and iPad Safari microphone permission/MP4/interruptions, physical touch and screen-reader behavior. Automated mocks do not replace those checks.
+
+- The first PR build compiled successfully but an upstream audio connection reset interrupted packaging. Build downloads now retry transient network errors at most five times with bounded backoff; permanent HTTP failures and checksum mismatches still fail. Download recovery/exhaustion/permanent-error behavior is covered by an additional regression test. The full build and 84-test suite were rerun successfully after this change.
 
 ## Release verification
 

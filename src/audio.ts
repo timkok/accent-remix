@@ -6,9 +6,10 @@ import type {Tone} from './data';
 let context:AudioContext|undefined;
 let active:HTMLAudioElement|undefined;
 let generation=0;
+let finishSequence:((reason:'complete'|'cancelled'|'error')=>void)|undefined;
 let oscillators:OscillatorNode[]=[];
 export const audioManifest:Record<string,{file:string;source:string;license:string;speaker:string}>=Object.fromEntries(Object.entries(recordedAudio.clips).map(([id,clip])=>[id,{file:clip.file,source:recordedAudio.source,license:recordedAudio.license,speaker:recordedAudio.credit}]));
-export function stopAudio(){generation++;active?.pause();active=undefined;if('speechSynthesis'in window)window.speechSynthesis.cancel();oscillators.forEach(o=>{try{o.stop();}catch{/* already finished */}});oscillators=[];}
+export function stopAudio(){generation++;finishSequence?.('cancelled');active?.pause();active=undefined;if('speechSynthesis'in window)window.speechSynthesis.cancel();oscillators.forEach(o=>{try{o.stop();}catch{/* already finished */}});oscillators=[];}
 export function localVoice(lang:'en'|'zh'){return 'speechSynthesis'in window?window.speechSynthesis.getVoices().find(v=>v.localService&&(lang==='zh'?/^zh[-_](CN|TW|SG|Hans|Hant)/i.test(v.lang):/^en/i.test(v.lang))):undefined;}
 export function speakEnglish(text:string,sound=true){
  if(!sound)return;
@@ -24,3 +25,18 @@ export function speakEnglish(text:string,sound=true){
 export async function pitchSound(tone:Tone,slow=false,fun=false){stopAudio();context??=new AudioContext();await context.resume();const duration=slow?1.7:1;const now=context.currentTime;const oscillator=context.createOscillator(),gain=context.createGain();oscillator.type=fun?'triangle':'sine';for(let i=0;i<=40;i++)oscillator.frequency.linearRampToValueAtTime(180+260*(1-contour(tone,i/40)),now+duration*i/40);gain.gain.setValueAtTime(0,now);gain.gain.linearRampToValueAtTime(.16,now+.06);gain.gain.setValueAtTime(.16,now+duration-.1);gain.gain.linearRampToValueAtTime(0,now+duration);oscillator.connect(gain).connect(context.destination);oscillators.push(oscillator);oscillator.start();oscillator.stop(now+duration+.02);}
 export async function playMandarin(base:string,tone:Tone,slow=false):Promise<string>{stopAudio();const id=base+tone,entry=audioManifest[id];if(entry){const player=new Audio(import.meta.env.BASE_URL+entry.file);active=player;player.playbackRate=slow?.78:1;player.preservesPitch=true;const token=generation;player.onerror=()=>{if(token===generation)window.dispatchEvent(new CustomEvent('audio-error',{detail:'The recording could not load. Reconnect once to cache it, then try again.'}));};try{await player.play();return token===generation?'Human Mandarin recording • Chinese-Lessons.com'+(slow?' • slow playback':''):'';}catch{return token===generation?'The recording could not play. Tap again, or reconnect once to download it.':'';}}const cue=speechCues[id];if(!cue)return 'Sound-shape practice only: no verified everyday Mandarin reading for this combination.';const voice=localVoice('zh');if(!voice)return 'No local Mandarin voice found. The visual challenges still work. A parent can add a Mandarin voice in device settings.';const u=new SpeechSynthesisUtterance(cue);u.voice=voice;u.lang=voice.lang;u.rate=slow?.65:.85;u.pitch=1;const token=generation;u.onerror=()=>{if(token===generation)window.dispatchEvent(new CustomEvent('audio-error',{detail:'Mandarin TTS could not play. Use the visual clue or try again.'}));};window.speechSynthesis.speak(u);return 'Temporary Mandarin browser TTS • device voice, not a verified recording';}
 export function chime(correct:boolean,sound:boolean){if(sound)void pitchSound(correct?2:3,false,true).catch(()=>{});}
+
+// One reusable media element keeps sequential playback inside the original user gesture.
+// Cancellation detaches ended handlers, so a stopped sequence can never start its next clip.
+export function playAudioSequence(files:string[],options:{slow?:boolean;gapMs?:number;onStep?:(index:number)=>void;onFinish?:(reason:'complete'|'cancelled'|'error')=>void}={}){
+ stopAudio();
+ if(!files.length){options.onFinish?.('complete');return;}
+ const token=generation,player=new Audio();let index=0;let timer:ReturnType<typeof setTimeout>|undefined;
+ let finished=false;active=player;player.playbackRate=options.slow?.78:1;player.preservesPitch=true;
+ const finish=(reason:'complete'|'cancelled'|'error')=>{if(finished)return;finished=true;clearTimeout(timer);player.onended=null;player.onerror=null;player.pause();if(active===player)active=undefined;if(finishSequence===finish)finishSequence=undefined;options.onFinish?.(reason);};
+ finishSequence=finish;
+ const fail=()=>{if(token!==generation||finished)return;finish('error');window.dispatchEvent(new CustomEvent('audio-error',{detail:'A recording could not play. Tap Play again, or reconnect once to download the audio.'}));};
+ const next=()=>{if(token!==generation||finished)return;if(index>=files.length){finish('complete');return;}player.src=import.meta.env.BASE_URL+files[index];options.onStep?.(index);void player.play().catch(fail);};
+ player.onerror=fail;player.onended=()=>{if(token!==generation||finished)return;index++;if(index===files.length){finish('complete');return;}timer=setTimeout(next,options.gapMs??120);};
+ next();
+}

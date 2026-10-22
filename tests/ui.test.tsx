@@ -45,3 +45,24 @@ describe('Echo voice guidance',()=>{
   expect(screen.getByText(/No local English voice is ready/)).toBeTruthy();expect(speak).not.toHaveBeenCalled();
  });
 });
+
+describe('recorded Mandarin pronunciation',()=>{
+ it('plays the selected rising and falling syllables without a device Mandarin voice',async()=>{
+  const players:{src:string;play:ReturnType<typeof vi.fn>;pause:ReturnType<typeof vi.fn>;playbackRate:number;preservesPitch:boolean}[]=[];
+  vi.stubGlobal('Audio',class {play=vi.fn().mockResolvedValue(undefined);pause=vi.fn();playbackRate=1;preservesPitch=false;constructor(public src:string){players.push(this);}});
+  render(<App/>);fireEvent.click(screen.getByRole('button',{name:/Start the challenge/}));
+  fireEvent.click(screen.getByRole('button',{name:'Hear first sound go up'}));
+  await waitFor(()=>expect(screen.getByText(/Human Mandarin recording/)).toBeTruthy());
+  expect(players.at(-1)!.src).toContain('/audio/mandarin/li2.mp3');
+  expect(players.at(-1)!.playbackRate).toBe(.78);expect(players.at(-1)!.preservesPitch).toBe(true);
+  fireEvent.click(screen.getByRole('button',{name:'Fast'}));
+  fireEvent.click(screen.getByRole('button',{name:'Hear second sound go down'}));
+  expect(players.at(-1)!.src).toContain('/audio/mandarin/mi4.mp3');expect(players.at(-1)!.playbackRate).toBe(1);
+  expect(players[0].pause).toHaveBeenCalled();
+  fireEvent.click(screen.getByRole('button',{name:'LULU'}));
+  fireEvent.click(screen.getByRole('button',{name:'Hear first sound go up'}));
+  expect(players.at(-1)!.src).toContain('/audio/mandarin/lu2.mp3');
+  fireEvent.click(screen.getByRole('button',{name:'Turn sound off'}));
+  expect(players.at(-1)!.pause).toHaveBeenCalled();expect((screen.getByRole('button',{name:'Hear first sound go up'}) as HTMLButtonElement).disabled).toBe(true);
+ });
+});
